@@ -13,17 +13,17 @@ class App extends Component {
     }
 
     componentDidMount(){
-        Meteor.call("agencyList", (err, res)=>{
+        /*Meteor.call("agencyList", (err, res)=>{
             if(err) throw err;
             this.setState({agencyList : res});
             console.log(this.state.agencyList);
         });
-        Meteor.call("routeList","actransit", (err, res)=>{
+        Meteor.call("routeList","sf-muni", (err, res)=>{
             if(err) throw err;
             this.setState({routeList : res});
             console.log(this.state.routeList);
-        });
-        Meteor.call("routeConfig","actransit","F", (err, res)=>{
+        });*/
+        Meteor.call("routeConfig","sf-muni", (err, res)=>{
             if(err) throw err;
             this.setState({routeConfig : res});
             console.log(this.state.routeConfig);
@@ -33,7 +33,7 @@ class App extends Component {
     render() {
         return (
             <div>
-                <D3/>
+                <D3 data = {this.state.routeConfig}/>
             </div>
         );
     }

@@ -5,12 +5,11 @@ import {Mongo} from "meteor/mongo";
 import {check} from "meteor/check";
 
 Meteor.methods({
-    "routeConfig"(agency, route) {
+    "routeConfig"(agency) {
         check(agency,String);
-        check(route,String);
         try {
-            res = HTTP.get("http://webservices.nextbus.com/service/publicJSONFeed?command=routeConfig&a="+agency+"&r="+route);
-            return routeConfig = res.data.route;
+            res =  HTTP.get("http://webservices.nextbus.com/service/publicJSONFeed?command=vehicleLocations&a="+agency+"&t=0");
+            return routeConfig = res.data;
 
         } catch (e) {
             // Do whatever you want with handling the error object (e)
