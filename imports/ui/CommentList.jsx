@@ -15,7 +15,11 @@ class CommentList extends Component {
 
         // Find the text field via the React ref
         const text = ReactDOM.findDOMNode(this.refs.textInput).value.trim();
-        Meteor.call("Comments.insert", text, this.props.tag);
+        Meteor.call("Comments.insert", text, this.props.tag,(erro, resp) => {
+            if (err) throw err;
+            console.log(resp);
+
+        });
         // Clear form
         ReactDOM.findDOMNode(this.refs.textInput).value = "";
 
@@ -68,7 +72,7 @@ class CommentList extends Component {
     render() {
         return (
             <div className="comments media-area">
-                <h5 className="text-center title">Comments per agency: {this.props.tag}</h5>
+                <h5 className="text-center title">Comments for route: {this.props.tag?this.props.tag:"No route"}</h5>
                 <form onSubmit={this.handleSubmit.bind(this)}>
                     {Meteor.userId() ?
                         <input className="form-control border-input" type="text" ref="textInput"

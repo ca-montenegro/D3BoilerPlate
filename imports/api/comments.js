@@ -6,7 +6,7 @@ export const Comments = new Mongo.Collection('Comments');
 
 if(Meteor.isServer){
     Meteor.publish("Comments", function commentsPublication(){
-        return Comments.find();
+        return Comments.find({});
     });
 }
 

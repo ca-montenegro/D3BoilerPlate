@@ -8,6 +8,7 @@ import {withTracker} from 'meteor/react-meteor-data';
 import {AgencyList} from "../api/AgencyList";
 import {Comments} from "../api/comments";
 import CommentsList from "./CommentList.jsx";
+import {RoutesList} from "../api/RouteList";
 
 class App extends Component {
     constructor(props) {
@@ -19,8 +20,10 @@ class App extends Component {
             goSearchEv: false,
             comments: [],
             idInterval: 0,
+
         };
         this.handleChange = this.handleChange.bind(this);
+        this.handleChangeRoute = this.handleChangeRoute.bind(this);
         this.callRouteConfig = this.callRouteConfig.bind(this);
     }
 
@@ -30,18 +33,23 @@ class App extends Component {
             //if (err) throw err;
             this.setState({agencyList: res});
         });
+
     }
 
     handleChange(event) {
+        event.preventDefault();
         this.setState({value: event.target.value});
-    }
+        Meteor.call("routeList",event.target.value, (erro, resp) => {
+            //if (err) throw err;
+            console.log(resp);
+            this.setState({routeList: resp});
+        });
 
-    search(e) {
-        e.preventDefault();
-        this.name = this.state.value;
+        this.setState({goSearchEv:false});
+        this.name = event.target.value;
         Meteor.clearInterval(this.state.idInterval);
         if (!(this.name.length === 0)) {
-            this.callRouteConfig();
+            this.callRouteConfig(event.target.value);
             idInt = Meteor.setInterval(this.callRouteConfig, 10000);
             this.setState({idInterval: idInt});
         }
@@ -49,8 +57,12 @@ class App extends Component {
         else {
             window.alert("Please fill out all the required fields!");
         }
+    }
+    handleChangeRoute(event) {
+        this.setState({routeValue: event.target.value});
+    }
 
-
+    search(e) {
     }
 
     renderOptions() {
@@ -63,9 +75,19 @@ class App extends Component {
         }
     }
 
-    callRouteConfig() {
+    renderRoutes(){
+        if (this.state.routeList) {
+            return this.state.routeList.map((route) => {
+                return (
+                    <option key={route.tag} value={route.tag}>{route.title}</option>
+                )
+            });
+        }
+    }
 
-        Meteor.call("routeConfig", this.state.value, (err, res) => {
+    callRouteConfig(value) {
+
+        Meteor.call("routeConfig",value, (err, res) => {
             if (err) throw err;
             if (res.vehicle) {
                 this.setState({routeConfig: res, goSearchEv: true});
@@ -115,23 +137,30 @@ class App extends Component {
                                                 </div>
                                                 <br/>
                                                 <br/>
+                                                <div>
+                                                    <div className="container row">
+                                                        <div className="">
+                                                            <h4>Select one route and add a new comment. </h4>
+                                                        </div>
+
+                                                    </div>
+                                                    <h5>Route Name</h5>
+                                                    <div>
+                                                        <select value={this.state.routeValue} onChange={this.handleChangeRoute}>
+                                                            {this.renderRoutes()}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <br/>
                                                 <h6>Searching Agency tag: {this.state.value}</h6>
                                                 <br/>
                                                 {this.state.goSearchEv ? <div><h6>Results for: {this.state.value}</h6>
                                                     <h6>Refreshing every 10 seconds</h6></div> : ""}
                                             </div>
-                                            <div className="row buttons-row">
-                                                <div className="col-md-12 col-sm-12">
-                                                    <button onClick={this.search.bind(this)} type="submit" form="form"
-                                                            className="btn btn-primary btn-block btn-round">
-                                                        <i className="fa fa-search"/> Search
-                                                    </button>
-                                                </div>
-                                            </div>
                                         </div>
                                         <div className="col-md-6 col-sm-6">
                                             <CommentsList comments={this.props.comments}
-                                                          tag={this.state.value}/>
+                                                          tag={this.state.routeValue}/>
                                         </div>
                                     </div>
                             </div>
@@ -149,7 +178,9 @@ class App extends Component {
 export default withTracker(() => {
     Meteor.subscribe("AgencyList");
     Meteor.subscribe('Comments');
+    Meteor.subscribe('RoutesList');
     return {
+        routesList: RoutesList.find({}).fetch(),
         comments: Comments.find({}, {sort: {createdAt: -1}}).fetch(),
         AgencyList: AgencyList.find({}).fetch(),
         currentUser: Meteor.user(),

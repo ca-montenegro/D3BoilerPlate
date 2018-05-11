@@ -177,6 +177,9 @@ class D3 extends Component {
 
             this.keys = d3.range(d3.max(this.maxNumBuses));
 
+            console.log(this.keys);
+            console.log(this.nestedBuses);
+
             this.update(this.nestedBuses);
         }
 
