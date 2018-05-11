@@ -68,7 +68,7 @@ class CommentList extends Component {
     render() {
         return (
             <div className="comments media-area">
-                <h5 className="text-center title">Comments for route: {this.props.tag}</h5>
+                <h5 className="text-center title">Comments per agency: {this.props.tag}</h5>
                 <form onSubmit={this.handleSubmit.bind(this)}>
                     {Meteor.userId() ?
                         <input className="form-control border-input" type="text" ref="textInput"
