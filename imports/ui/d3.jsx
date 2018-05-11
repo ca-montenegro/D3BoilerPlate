@@ -150,7 +150,6 @@ class D3 extends Component {
                         +route.values[i - 1].lat, +route.values[i - 1].lon);
                 }
                 route.total += route.values[i].distance;
-                ;
             }
         }
         this.nestedBuses.sort(function (a, b) {

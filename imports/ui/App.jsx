@@ -21,8 +21,8 @@ class App extends Component {
             if(err) throw err;
             this.setState({agencyList : res});
             console.log(this.state.agencyList);
-        });
-        Meteor.call("routeList","sf-muni", (err, res)=>{
+        });*/
+        /*Meteor.call("routeList","sf-muni", (err, res)=>{
             if(err) throw err;
             this.setState({routeList : res});
             console.log(this.state.routeList);
@@ -44,9 +44,15 @@ class App extends Component {
                 console.log(this.state.routeConfig);
             });
         }
+
         else {
             window.alert("Please fill out all the required fields!");
         }
+        Meteor.call("agencyList", (err, res)=>{
+            if(err) throw err;
+            this.setState({agencyList : res});
+            console.log(this.state.agencyList);
+        });
 
     }
 

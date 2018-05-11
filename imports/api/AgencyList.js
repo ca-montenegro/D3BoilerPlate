@@ -4,11 +4,13 @@ import { HTTP } from 'meteor/http'
 import {Mongo} from "meteor/mongo";
 import {check} from "meteor/check";
 
+export const AgencyList = new Mongo.Collection("AgencyList");
+
 Meteor.methods({
     "agencyList"() {
         try {
             res = HTTP.get('http://webservices.nextbus.com/service/publicJSONFeed?command=agencyList');
-            return agencyList = res.data.agency;
+            AgencyList.insert(res.data.agency);
 
         } catch (e) {
             // Do whatever you want with handling the error object (e)
