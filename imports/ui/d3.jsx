@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import * as d3 from "d3";
-import * as d3Chromatic from "d3-scale-chromatic";
+//import * as d3Chromatic from "d3-scale-chromatic";
 import PropTypes from 'prop-types';
 
 class D3 extends Component {
@@ -26,20 +26,25 @@ class D3 extends Component {
         this.y = d3.scaleLinear()
             .rangeRound([this.height, 0]);
 
+
         //Create viz
     }
 
     update(myData) {
         //Update data in Viz
 
-        this.z = d3.scaleOrdinal(d3Chromatic.interpolateBlues);
+        this.z = d3.scaleSequential(d3.interpolateBlues);
+
         this.x.domain(myData.map(function (d) {
             return d.key;
         }));
         this.y.domain([0, d3.max(myData, function (d) {
             return d.total;
         })]).nice();
-        this.z.domain(this.keys);
+        this.z.domain([0,d3.max(this.maxNumBuses)]);
+
+        this.g.selectAll("rect").remove().transition().duration(1000);
+        this.g.selectAll("g").remove().transition().duration(1000);
 
         this.g.append("g")
             .selectAll("g")
@@ -67,13 +72,14 @@ class D3 extends Component {
             .attr("width", this.x.bandwidth());
 
         this.g.append("g")
-            .attr("class", "axis")
+            .attr("class", "axis-x")
             .attr("transform", "translate(0," + this.height + ")")
             .call(d3.axisBottom(this.x))
-            .attr("font-size",8);
+            .attr("font-size",8)
+
 
         this.g.append("g")
-            .attr("class", "axis")
+            .attr("class", "axis-y")
             .call(d3.axisLeft(this.y).ticks(null, "s"))
             .append("text")
             .attr("x", 2)
@@ -109,6 +115,15 @@ class D3 extends Component {
                 return d;
             });
 
+        this.g.select(".axis-x")
+            .transition().duration(1000)
+            .call(d3.axisBottom(this.x));
+
+        this.g.select(".axis-y")
+            .transition().duration(1000)
+            .call(d3.axisLeft(this.y).ticks(null, "s"));
+
+
     }
 
     getDistance = function (lat1, lon1, lat2, lon2) {
@@ -132,40 +147,40 @@ class D3 extends Component {
     componentDidUpdate() {
         //Receive new props and update in viz
         data = this.props.data;
-        console.log(data);
-        this.nestedBuses = d3.nest().key((d) => d.routeTag).entries(data.vehicle);
-        first = this.nestedBuses[0].values[0];
+        if(data.vehicle){
+            this.nestedBuses = d3.nest().key((d) => d.routeTag).entries(data.vehicle);
+            first = this.nestedBuses[0].values[0];
 
-        for (let route of this.nestedBuses) {
-            route.total = 0;
-            for (let i = 0; i < route.values.length; i++) {
-                if (route.values.length === 1)
-                    route.values[i].distance = 0;
-                if (i < route.values.length - 1) {
-                    route.values[i].distance = this.getDistance(+route.values[i].lat, +route.values[i].lon,
-                        +route.values[i + 1].lat, +route.values[i + 1].lon);
+            for (let route of this.nestedBuses) {
+                route.total = 0;
+                for (let i = 0; i < route.values.length; i++) {
+                    if (route.values.length === 1)
+                        route.values[i].distance = 0;
+                    if (i < route.values.length - 1) {
+                        route.values[i].distance = this.getDistance(+route.values[i].lat, +route.values[i].lon,
+                            +route.values[i + 1].lat, +route.values[i + 1].lon);
+                    }
+                    else if (!i < route.values.length - 1) {
+                        route.values[i].distance = this.getDistance(+route.values[i].lat, +route.values[i].lon,
+                            +route.values[i - 1].lat, +route.values[i - 1].lon);
+                    }
+                    route.total += route.values[i].distance;
                 }
-                else if (!i < route.values.length - 1) {
-                    route.values[i].distance = this.getDistance(+route.values[i].lat, +route.values[i].lon,
-                        +route.values[i - 1].lat, +route.values[i - 1].lon);
-                }
-                route.total += route.values[i].distance;
             }
+            this.nestedBuses.sort(function (a, b) {
+                return b.total - a.total;
+            });
+
+            this.maxNumBuses = this.nestedBuses.map((d) => {
+                return d.values.length;
+            });
+
+            this.keys = d3.range(d3.max(this.maxNumBuses));
+
+            this.update(this.nestedBuses);
         }
-        this.nestedBuses.sort(function (a, b) {
-            return b.total - a.total;
-        });
 
-        this.maxNumBuses = this.nestedBuses.map((d) => {
-            return d.values.length;
-        });
 
-        this.keys = d3.range(d3.max(this.maxNumBuses));
-
-        console.log(this.keys);
-        console.log(this.nestedBuses);
-
-        this.update(this.nestedBuses);
 
 
     }
