@@ -11,11 +11,11 @@ class D3 extends Component {
 
     componentDidMount() {
 
-        let svg = d3.select("#chart");
+        this.svg = d3.select("#chart");
             this.margin = {top: 20, right: 20, bottom: 30, left: 40};
-            this.width = +svg.attr("width") - this.margin.left - this.margin.right;
-            this.height = +svg.attr("height") - this.margin.top - this.margin.bottom;
-            this.g = svg.append("g")
+            this.width = +this.svg.attr("width") - this.margin.left - this.margin.right;
+            this.height = +this.svg.attr("height") - this.margin.top - this.margin.bottom;
+            this.g = this.svg.append("g")
                 .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
         this.x = d3.scaleBand()
@@ -25,6 +25,8 @@ class D3 extends Component {
 
         this.y = d3.scaleLinear()
             .rangeRound([this.height, 0]);
+
+
 
 
         //Create viz
@@ -43,8 +45,8 @@ class D3 extends Component {
         })]).nice();
         this.z.domain([0,d3.max(this.maxNumBuses)]);
 
-        this.g.selectAll("rect").remove().transition().duration(1000);
-        this.g.selectAll("g").remove().transition().duration(1000);
+        this.g.selectAll("rect").remove().transition().duration(10000);
+        this.g.selectAll("g").remove().transition().duration(10000);
 
         this.g.append("g")
             .selectAll("g")
@@ -69,13 +71,17 @@ class D3 extends Component {
             .attr("height",  (d)=> {
                 return this.y(d[0]) - this.y(d[1]);
             })
-            .attr("width", this.x.bandwidth());
+            .attr("width", this.x.bandwidth())
+            .text((d)=>{
+                return d[1];
+            });
+
 
         this.g.append("g")
             .attr("class", "axis-x")
             .attr("transform", "translate(0," + this.height + ")")
             .call(d3.axisBottom(this.x))
-            .attr("font-size",8)
+            .attr("font-size",8);
 
 
         this.g.append("g")
@@ -116,12 +122,30 @@ class D3 extends Component {
             });
 
         this.g.select(".axis-x")
-            .transition().duration(1000)
+            .transition().duration(10000)
             .call(d3.axisBottom(this.x));
 
         this.g.select(".axis-y")
-            .transition().duration(1000)
+            .transition().duration(10000)
             .call(d3.axisLeft(this.y).ticks(null, "s"));
+
+        // Prep the tooltip bits, initial display is hidden
+        this.tooltip = this.svg.append("g")
+            .attr("class", "tooltip")
+            .style("display", "none");
+
+        this.tooltip.append("rect")
+            .attr("width", 30)
+            .attr("height", 20)
+            .attr("fill", "white")
+            .style("opacity", 0.5);
+
+        this.tooltip.append("text")
+            .attr("x", 15)
+            .attr("dy", "1.2em")
+            .style("text-anchor", "middle")
+            .attr("font-size", "12px")
+            .attr("font-weight", "bold");
 
 
     }
@@ -166,6 +190,8 @@ class D3 extends Component {
                     }
                     route.total += route.values[i].distance;
                 }
+                route.values = route.values.sort((a,b)=>a.distance-b.distance);
+
             }
             this.nestedBuses.sort(function (a, b) {
                 return b.total - a.total;

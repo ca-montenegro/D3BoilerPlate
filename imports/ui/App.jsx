@@ -104,7 +104,7 @@ class App extends Component {
 
         return (
             <div style={{"backgroundColor": "lightgrey"}}>
-                <div className="container">
+                <div className="">
                     <Nav></Nav>
                     <br/>
                     <br/>
@@ -168,7 +168,10 @@ class App extends Component {
                     </div>
                     <br/>
                     <br/>
-                    <D3 data={this.state.routeConfig}/>
+                    <div align = "center">
+                        <D3 data={this.state.routeConfig}/>
+                    </div>
+
                 </div>
             </div>
         );
