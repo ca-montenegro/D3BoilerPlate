@@ -27,9 +27,9 @@ meteor
 ```
 Then open your browser on http://localhost:3000
 
-## Data Manage
-All data is extracted from (NextBus)[http://www.nextbus.com] (API)[https://gist.github.com/grantland/7cf4097dd9cdf0dfed14].
-The data profiling was made with (John Guerra's implementation)[https://beta.observablehq.com/@john-guerra/d3-stack-with-d3-nest] but the code was fixed in the distance per route tuple calculation:
+## Data Profiling
+All data is extracted from [NextBus](http://www.nextbus.com) [API](https://gist.github.com/grantland/7cf4097dd9cdf0dfed14).
+The data profiling was made with [John Guerra's implementation](https://beta.observablehq.com/@john-guerra/d3-stack-with-d3-nest) but the code was fixed in the distance per route tuple calculation:
 ```
 for (let route of this.nestedBuses) {
                 route.total = 0;
